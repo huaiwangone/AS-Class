@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">points</string>
+    <string name="pointA3">+3points</string>
+    <string name="pointA2">+2points</string>
+    <string name="pointA1">+1points</string>
+    <string name="pointB3">+3points</string>
+    <string name="pointB2">+2points</string>
+    <string name="pointB1">+1points</string>
+    <string name="pointA">0</string>
+    <string name="pointB">0</string>
+</resources>
