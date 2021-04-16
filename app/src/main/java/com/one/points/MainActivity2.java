@@ -52,7 +52,7 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void click1(View btn){
-        Log.i(TAG, "click1: 跳转JD");
+        Log.i(TAG, "click1: 跳转到JD");
         Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.jd.com"));
         startActivity(open);
     }
