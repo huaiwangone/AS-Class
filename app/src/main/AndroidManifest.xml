@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Points">
         <activity android:name=".MainActivity2">
-            <intent-filter><!--写了这个才能直接运行该activity-->
+            <intent-filter><!--写了这个才能直接运行该activity -->
             <action android:name="android.intent.action.MAIN" />
 
             <category android:name="android.intent.category.LAUNCHER" />
