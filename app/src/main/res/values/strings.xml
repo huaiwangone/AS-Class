@@ -8,4 +8,10 @@
     <string name="pointB1">+1points</string>
     <string name="pointA">0</string>
     <string name="pointB">0</string>
+    <string name="title_activity_change_rate">ChangeRate</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
 </resources>
