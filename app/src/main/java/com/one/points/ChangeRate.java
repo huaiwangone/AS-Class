@@ -2,7 +2,9 @@ package com.one.points;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +49,15 @@ public class ChangeRate extends AppCompatActivity {
         intent1.putExtra("euro1",euro1);
         intent1.putExtra("won1",won1);
         setResult(2,intent1);
+
+        //保存数据修改
+        SharedPreferences sp = getSharedPreferences("myrate", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("dollar_rate",String.valueOf(dollar1));
+        editor.putString("euro_rate",String.valueOf(euro1));
+        editor.putString("won_rate",String.valueOf(won1));
+        editor.apply();
+
         finish();
     }
 }

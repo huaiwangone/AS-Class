@@ -1,32 +1,74 @@
 package com.one.points;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.HeaderViewListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.chrono.ChronoLocalDateTime;
 
-public class MainActivity2 extends AppCompatActivity {
+public class MainActivity2 extends AppCompatActivity implements Runnable{
     EditText rmb;
     TextView result;
-    double dollarate=0.1503;
-    double eurorate=0.1266;
-    double wonrate=170.2708;
+    double dollarate=0.0;
+    double eurorate=0.0;
+    double wonrate=0.0;
+    Handler handler;
     private static final String TAG = "MainActivity2";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         rmb = findViewById(R.id.input);
         result = findViewById(R.id.result);
+
+        //读取数据
+        SharedPreferences sharedPreferences = getSharedPreferences("myrate", Activity.MODE_PRIVATE);
+        dollarate = Double.parseDouble(sharedPreferences.getString("dollare_rate","0.1503"));
+        eurorate = Double.parseDouble(sharedPreferences.getString("euro_rate","0.1266"));
+        wonrate = Double.parseDouble(sharedPreferences.getString("won_rate","170.2708"));
+
+        //启用子线程
+        Thread t = new Thread(this);
+        t.start();//自动调用run方法
+        //创建handler对象
+        handler = new Handler(Looper.myLooper()){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                if(msg.what==7){
+                    String val = (String) msg.obj;
+                    result.setText(val);
+                }
+                super.handleMessage(msg);
+            }
+        };
     }
 
     public  void click(View btn){
@@ -55,15 +97,33 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void click1(View btn){
+        openConfig();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.rate,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.menu_set){
+            openConfig();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openConfig() {
         Log.i(TAG, "click1: 跳转到修改汇率界面");
 //        Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.jd.com"));
 //        startActivity(open);
-        Intent config = new Intent(this,ChangeRate.class);
-        config.putExtra("dollarate",dollarate);
-        config.putExtra("eurorate",eurorate);
-        config.putExtra("wonrate",wonrate);
+        Intent config = new Intent(this, ChangeRate.class);
+        config.putExtra("dollarate", dollarate);
+        config.putExtra("eurorate", eurorate);
+        config.putExtra("wonrate", wonrate);
 
-        startActivityForResult(config,1);
+        startActivityForResult(config, 1);
     }
 
     @Override
@@ -74,5 +134,45 @@ public class MainActivity2 extends AppCompatActivity {
             wonrate = data.getDoubleExtra("won1",0.0);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void run() {
+        //子线程通常进行耗时操作
+        URL url = null;
+        try {
+            url = new URL("http://www.usd-cny.com/icbc.htm");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            InputStream in = null;
+            in = http.getInputStream();
+            String html = inputStream2String(in);
+            Log.i(TAG, "run:html="+html);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+       catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        //运行完之后需要返回消息到主线程
+        //Message msg = handler.obtainMessage(7,"Hello from run()");
+        //或msg.what = 7;
+        //msg.obj = "Hello from run()";
+       // handler.sendMessage(msg);
+    }
+
+    private String inputStream2String(InputStream inputStream) throws IOException {
+        final int bufferSize = 1024;
+        final char[] buffer = new char[bufferSize];
+        final StringBuilder out = new StringBuilder();
+        Reader in = new InputStreamReader(inputStream,"gb2312");
+        while(true){
+            int rsz = in.read(buffer,0,buffer.length);
+            if(rsz<0)
+                break;
+            out.append(buffer,0,rsz);
+        }
+        return out.toString();
     }
 }
