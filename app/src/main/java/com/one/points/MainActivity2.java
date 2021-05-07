@@ -22,6 +22,11 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,7 +36,11 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.time.chrono.ChronoLocalDateTime;
+import java.util.Date;
+
+import javax.security.auth.login.LoginException;
 
 public class MainActivity2 extends AppCompatActivity implements Runnable{
     EditText rmb;
@@ -41,6 +50,7 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
     double wonrate=0.0;
     Handler handler;
     private static final String TAG = "MainActivity2";
+    String time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +64,9 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
         dollarate = Double.parseDouble(sharedPreferences.getString("dollare_rate","0.1503"));
         eurorate = Double.parseDouble(sharedPreferences.getString("euro_rate","0.1266"));
         wonrate = Double.parseDouble(sharedPreferences.getString("won_rate","170.2708"));
+        time = sharedPreferences.getString("date","date");//设置时间变量,保存今天的时间;
+
+
 
         //启用子线程
         Thread t = new Thread(this);
@@ -140,18 +153,60 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
     public void run() {
         //子线程通常进行耗时操作
         URL url = null;
-        try {
-            url = new URL("http://www.usd-cny.com/icbc.htm");
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            InputStream in = null;
-            in = http.getInputStream();
-            String html = inputStream2String(in);
-            Log.i(TAG, "run:html="+html);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+//        try { 将网页源码转换为文本
+//            url = new URL("http://www.usd-cny.com/icbc.htm");
+//            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+//            InputStream in = null;
+//            in = http.getInputStream();
+//            String html = inputStream2String(in);
+//            Log.i(TAG, "run:html="+html);
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//       catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        SharedPreferences sp = getSharedPreferences("myrate", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        Date now_date = new Date();
+        SimpleDateFormat DF = new SimpleDateFormat("yyyy-mm-dd");
+        if(time.equals(DF.format(now_date))){
+            Log.i(TAG, "run: 今日已更新");
+            Log.i(TAG, "run: "+DF.format(now_date));
+            editor.putString("date",DF.format(now_date));
         }
-       catch (IOException e) {
-            e.printStackTrace();
+        else {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect("http://www.usd-cny.com/icbc.htm").get();
+                Log.i(TAG, "title:" + doc.title());
+                Element table = doc.getElementsByTag("table").first();//获取table对象
+                Elements tds = table.getElementsByTag("td");//获取所有的td 注意element（s）对象是集合还是单个元素
+                for (int i = 0; i <= tds.size() - 1; i++) {
+                    if (tds.get(i).text().equals("美元")) {
+                        String D1 = tds.get(i + 1).text();
+                        dollarate = Double.parseDouble(D1) / 100;
+                        Log.i(TAG, "run: D1=" + D1);
+                        continue;
+                    }
+                    if (tds.get(i).text().equals("欧元")) {
+                        String E1 = tds.get(i + 1).text();
+                        eurorate = Double.parseDouble(E1) / 100;
+                        Log.i(TAG, "run: E1=" + E1);
+                        continue;
+                    }
+                    if (tds.get(i).text().equals("韩币")) {
+                        String W1;
+                        W1 = tds.get(i + 2).text();
+                        wonrate = Double.parseDouble(W1) * 100;
+                        Log.i(TAG, "run: W1=" + W1);
+                        continue;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 

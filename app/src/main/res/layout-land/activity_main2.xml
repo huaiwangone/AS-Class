@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="Input RMB"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="20dp"
+            android:padding="10dp" />
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text="Hello"
+            android:textSize="40sp" />
+
+        <Button
+            android:id="@+id/DOLLAR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="click"
+            android:text="DOLLAR" />
+
+        <Button
+            android:id="@+id/EURO"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="click"
+            android:text="EURO" />
+
+        <Button
+            android:id="@+id/WON"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="click"
+            android:text="WON" />
+
+        <Button
+            android:id="@+id/button4"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_margin="10dp"
+            android:onClick="click1"
+            android:text="JD" />
+    </LinearLayout>
+</LinearLayout>
