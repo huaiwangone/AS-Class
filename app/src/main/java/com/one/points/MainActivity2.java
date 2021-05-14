@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,8 +18,10 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.HeaderViewListAdapter;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +41,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.chrono.ChronoLocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
@@ -50,7 +55,7 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
     double wonrate=0.0;
     Handler handler;
     private static final String TAG = "MainActivity2";
-    String time;
+    String timeStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +69,20 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
         dollarate = Double.parseDouble(sharedPreferences.getString("dollare_rate","0.1503"));
         eurorate = Double.parseDouble(sharedPreferences.getString("euro_rate","0.1266"));
         wonrate = Double.parseDouble(sharedPreferences.getString("won_rate","170.2708"));
-        time = sharedPreferences.getString("date","date");//设置时间变量,保存今天的时间;
+        timeStr = sharedPreferences.getString("time","");//设置时间变量
+        Log.i(TAG, "onCreate: timeStr="+timeStr);
 
-
-
-        //启用子线程
-        Thread t = new Thread(this);
-        t.start();//自动调用run方法
+        Date date = new Date();
+        SimpleDateFormat DF = new SimpleDateFormat("yyyy-mm-dd");//获取本次访问时间
+        if(timeStr.equals(DF.format(date))) {
+            Log.i(TAG, "onCreate: 今日汇率已更新");
+        }
+            //启用子线程
+        else{
+            Log.i(TAG, "onCreate: 更新今日汇率");
+            Thread t = new Thread(this);
+            t.start();//自动调用run方法
+        }
         //创建handler对象
         handler = new Handler(Looper.myLooper()){
             @Override
@@ -79,6 +91,15 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
                     String val = (String) msg.obj;
                     result.setText(val);
                 }
+                timeStr = DF.format(date);
+                Log.i(TAG, "handleMessage: timeStr="+timeStr);
+                SharedPreferences sp = getSharedPreferences("myrate", Activity.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("dollar_rate",String.valueOf(dollarate));
+                editor.putString("euro_rate",String.valueOf(eurorate));
+                editor.putString("won_rate",String.valueOf(wonrate));//将网页获取的汇率存入SP中
+                editor.putString("time",timeStr);//存入当前时间
+                editor.apply();
                 super.handleMessage(msg);
             }
         };
@@ -168,21 +189,13 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
 //        }
         SharedPreferences sp = getSharedPreferences("myrate", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-
-        Date now_date = new Date();
-        SimpleDateFormat DF = new SimpleDateFormat("yyyy-mm-dd");
-        if(time.equals(DF.format(now_date))){
-            Log.i(TAG, "run: 今日已更新");
-            Log.i(TAG, "run: "+DF.format(now_date));
-            editor.putString("date",DF.format(now_date));
-        }
-        else {
             Document doc = null;
             try {
                 doc = Jsoup.connect("http://www.usd-cny.com/icbc.htm").get();
                 Log.i(TAG, "title:" + doc.title());
                 Element table = doc.getElementsByTag("table").first();//获取table对象
                 Elements tds = table.getElementsByTag("td");//获取所有的td 注意element（s）对象是集合还是单个元素
+
                 for (int i = 0; i <= tds.size() - 1; i++) {
                     if (tds.get(i).text().equals("美元")) {
                         String D1 = tds.get(i + 1).text();
@@ -207,14 +220,14 @@ public class MainActivity2 extends AppCompatActivity implements Runnable{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+
 
 
         //运行完之后需要返回消息到主线程
-        //Message msg = handler.obtainMessage(7,"Hello from run()");
+        Message msg = handler.obtainMessage(7,"Hello from run()");
         //或msg.what = 7;
-        //msg.obj = "Hello from run()";
-       // handler.sendMessage(msg);
+        msg.obj = "Hello from run()";
+        handler.sendMessage(msg);//要传回handler才能运行存入时间部分的内容
     }
 
     private String inputStream2String(InputStream inputStream) throws IOException {
