@@ -34,7 +34,7 @@ public class FirstListActivity extends ListActivity implements Runnable {
             public void handleMessage(@NonNull Message msg) {
                 if(msg.what==7){
                     List<String> list2 = (List<String>) msg.obj;
-                    Log.i(TAG, "handleMessage: "+list2.get(1));
+//                    Log.i(TAG, "handleMessage: "+list2.get(1));
                     ListAdapter adapter = new ArrayAdapter<String>(FirstListActivity.this, android.R.layout.simple_list_item_1,list2);
                     setListAdapter(adapter);
                 }
@@ -51,12 +51,13 @@ public class FirstListActivity extends ListActivity implements Runnable {
         Document doc = null;
         List<String> list1 = new ArrayList<String>();
         try {
-            doc = Jsoup.connect("http://www.usd-cny.com/icbc.htm").get();
+            doc = Jsoup.connect("https://www.boc.cn/sourcedb/whpj/").get();
             Log.i(TAG, "run: title:" + doc.title());
-            Element table = doc.getElementsByTag("table").first();//获取table对象
+            Elements tables = doc.getElementsByTag("table");//获取table对象
+            Element table = tables.get(1);
             Elements tds = table.getElementsByTag("td");//获取所有的td 注意element（s）对象是集合还是单个元素
-            for (int i = 0; i < tds.size() - 1; i += 5) {
-                list1.add(tds.get(i).text() + "汇率=" + tds.get(i + 1).text());
+            for (int i = 0; i < tds.size() - 1; i += 8) {
+                list1.add(tds.get(i).text() + "汇率=" + tds.get(i+2).text());
             }
         } catch (IOException e) {
             e.printStackTrace();
