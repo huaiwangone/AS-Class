@@ -18,6 +18,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class FirstListActivity extends ListActivity implements Runnable {
@@ -49,20 +50,27 @@ public class FirstListActivity extends ListActivity implements Runnable {
     @Override
     public void run() {
         Document doc = null;
-        List<String> list1 = new ArrayList<String>();
+//        List<String> list1 = new ArrayList<String>();
+        ArrayList<HashMap<String,String>> listItems = new ArrayList<HashMap<String, String>>();
         try {
+            Thread.sleep(3000);
             doc = Jsoup.connect("https://www.boc.cn/sourcedb/whpj/").get();
             Log.i(TAG, "run: title:" + doc.title());
             Elements tables = doc.getElementsByTag("table");//获取table对象
             Element table = tables.get(1);
             Elements tds = table.getElementsByTag("td");//获取所有的td 注意element（s）对象是集合还是单个元素
             for (int i = 0; i < tds.size() - 1; i += 8) {
-                list1.add(tds.get(i).text() + "汇率=" + tds.get(i+2).text());
+                HashMap<String,String> map = new HashMap<>();
+                map.put("money",tds.get(i).text());
+                map.put("rate",tds.get(i+2).text());
+                listItems.add(map);
+                Log.i(TAG, "run: "+listItems);
+//                list1.add(tds.get(i).text() + "汇率=" + tds.get(i+2).text());
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        Message msg = handler.obtainMessage(7,list1);
+        Message msg = handler.obtainMessage(7,listItems);
         handler.sendMessage(msg);
 
     }
