@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".ThirdListActivity">
 
+    <TextView
+        android:id="@+id/nodata"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="320dp"
+        android:text="NO DATA!"
+        app:layout_constraintBottom_toBottomOf="@+id/mylist3"
+        app:layout_constraintEnd_toEndOf="@+id/mylist3"
+        app:layout_constraintStart_toStartOf="@+id/mylist3"
+        app:layout_constraintTop_toTopOf="@+id/mylist3" />
+
     <ListView
         android:id="@+id/mylist3"
         android:layout_width="match_parent"
@@ -17,8 +28,10 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
     </ListView>
 
