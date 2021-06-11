@@ -18,7 +18,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            //初始化表
+            //初始化表,当前数据库没有的时候才会执行，数据库已有之后就不会执行该方法
             String sql = "CREATE TABLE "+TB_NAME+"(ID INTEGER PRIMARY KEY AUTOINCREMENT,CURNAME TEXT, CURRATE TEXT)";
             db.execSQL(sql);
         }
