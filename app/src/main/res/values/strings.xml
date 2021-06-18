@@ -9,6 +9,10 @@
     <string name="pointA">0</string>
     <string name="pointB">0</string>
     <string name="title_activity_change_rate">ChangeRate</string>
+    <string name="hello_world1">欢迎使用！</string>
+    <string name="lab_approve">赞成</string>
+    <string name="lab_object">反对</string>
+    <string name="lab_abstain">弃权</string>
     <!--
     This string is used for square devices and overridden by hello_world in
     values-round/strings.xml for round devices.
